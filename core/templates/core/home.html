@@ -2,55 +2,38 @@
 {% block title %}Home • Social Butterfly{% endblock %}
 
 {% block content %}
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h4 mb-0">Upcoming Events</h1>
-    {% if request.session.sb_user_email %}
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
-        <span>➕</span> Host an Event
-      </button>
-    {% endif %}
-  </div>
+  <h1 class="h4 mb-3">Upcoming Events</h1>
 
   {% if events %}
     <div class="row g-3">
       {% for e in events %}
         <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm event-card" style="cursor: pointer;" data-event-id="{{ e.id }}">
+          <div class="card h-100 shadow-sm">
             <div class="card-body">
-              <h2 class="h5 mb-2">{{ e.name }}</h2>
+              {% if e.category %}
+                <span class="badge rounded-pill text-bg-light mb-2">{{ e.category }}</span>
+              {% endif %}
+              <h2 class="h5 mb-2">{{ e.title }}</h2>
 
               {% if e.datetime %}
-                <div class="d-flex align-items-center gap-2 small text-muted mb-2">
-                  <span>📅</span>
+                <div class="d-flex align-items-center gap-2 small text-muted">
+                  <span class="bi bi-calendar-event"></span>
                   <span>{{ e.datetime|date:"M d, Y" }} · {{ e.datetime|date:"P" }}</span>
                 </div>
               {% endif %}
 
-              {% if e.location %}
-                <div class="small text-muted mb-2">
-                  <span>📍</span> {{ e.location }}
-                </div>
+              {% if e.location_text %}
+                <div class="small text-muted">{{ e.location_text }}</div>
               {% endif %}
 
-              {% if e.details %}
+              {% if e.description %}
                 <p class="mt-2 mb-0 text-secondary" style="min-height:2.5rem;">
-                  {{ e.details|truncatechars:120 }}
+                  {{ e.description|truncatechars:120 }}
                 </p>
               {% endif %}
             </div>
             <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
-              <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">
-                  {% if e.rsvp_count > 0 %}
-                    {{ e.rsvp_count }} RSVP{{ e.rsvp_count|pluralize }}
-                  {% else %}
-                    No RSVPs yet
-                  {% endif %}
-                </small>
-                {% if e.has_rsvpd %}
-                  <span class="badge bg-success">You're going!</span>
-                {% endif %}
-              </div>
+              <a class="btn btn-outline-primary w-100 disabled" role="button" aria-disabled="true">RSVP (soon)</a>
             </div>
           </div>
         </div>
@@ -58,272 +41,7 @@
     </div>
   {% else %}
     <div class="p-4 bg-white border rounded-3 shadow-sm">
-      <p class="mb-0">No events to show. {% if request.session.sb_user_email %}<a href="#" data-bs-toggle="modal" data-bs-target="#createEventModal">Host the first event!</a>{% endif %}</p>
+      <p class="mb-0">No events to show.</p>
     </div>
   {% endif %}
-
-  <!-- Create Event Modal -->
-  <div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="createEventModalLabel">Host an Event</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form id="createEventForm">
-          <div class="modal-body">
-            <div id="createEventAlert" class="alert d-none" role="alert"></div>
-            
-            <div class="mb-3">
-              <label for="eventName" class="form-label">Event Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="eventName" name="name" required placeholder="e.g., Board Game Night">
-            </div>
-            
-            <div class="mb-3">
-              <label for="eventLocation" class="form-label">Location <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="eventLocation" name="location" required placeholder="e.g., Central Park, New York">
-            </div>
-            
-            <div class="mb-3">
-              <label for="eventDateTime" class="form-label">Date & Time <span class="text-danger">*</span></label>
-              <input type="datetime-local" class="form-control" id="eventDateTime" name="datetime" required>
-            </div>
-            
-            <div class="mb-3">
-              <label for="eventDetails" class="form-label">Details</label>
-              <textarea class="form-control" id="eventDetails" name="details" rows="4" placeholder="Tell people more about your event..."></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="createEventSubmit">Create Event</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Event Detail Modal -->
-  <div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="eventDetailModalLabel">Event Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="eventDetailContent">
-          <div class="text-center">
-            <div class="spinner-border" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer" id="eventDetailFooter">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Helper function to get CSRF token
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
-    
-    function getCsrfToken() {
-      return getCookie('csrftoken') || '{{ csrf_token }}';
-    }
-
-    // Create Event Form Handler
-    document.getElementById('createEventForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const submitBtn = document.getElementById('createEventSubmit');
-      const alertDiv = document.getElementById('createEventAlert');
-      
-      // Get CSRF token
-      const csrfToken = getCsrfToken();
-      
-      // Disable submit button
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Creating...';
-      alertDiv.classList.add('d-none');
-      
-      const formData = new FormData(form);
-      
-      try {
-        const response = await fetch('{% url "create_event" %}', {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': csrfToken
-          },
-          body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.success) {
-          alertDiv.className = 'alert alert-success';
-          alertDiv.textContent = data.message || 'Event created successfully!';
-          alertDiv.classList.remove('d-none');
-          
-          // Reset form
-          form.reset();
-          
-          // Reload page after a short delay
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        } else {
-          alertDiv.className = 'alert alert-danger';
-          alertDiv.textContent = data.error || 'Failed to create event. Please try again.';
-          alertDiv.classList.remove('d-none');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Create Event';
-        }
-      } catch (error) {
-        alertDiv.className = 'alert alert-danger';
-        alertDiv.textContent = 'An error occurred. Please try again.';
-        alertDiv.classList.remove('d-none');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Event';
-      }
-    });
-
-    // Event Card Click Handler
-    document.querySelectorAll('.event-card').forEach(card => {
-      card.addEventListener('click', async function() {
-        const eventId = this.dataset.eventId;
-        const modal = new bootstrap.Modal(document.getElementById('eventDetailModal'));
-        const contentDiv = document.getElementById('eventDetailContent');
-        const footerDiv = document.getElementById('eventDetailFooter');
-        
-        // Show loading
-        contentDiv.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-        footerDiv.innerHTML = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>';
-        
-        modal.show();
-        
-        try {
-          const response = await fetch(`/events/${eventId}/`);
-          const data = await response.json();
-          
-          // Format datetime
-          const eventDate = new Date(data.datetime);
-          const formattedDate = eventDate.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          });
-          const formattedTime = eventDate.toLocaleTimeString('en-US', { 
-            hour: 'numeric', 
-            minute: '2-digit' 
-          });
-          
-          // Build content
-          let rsvpListHtml = '';
-          if (data.rsvps && data.rsvps.length > 0) {
-            rsvpListHtml = '<div class="mt-3"><strong>Attendees ({{ data.rsvp_count }}):</strong><ul class="list-unstyled mt-2">';
-            data.rsvps.forEach(rsvp => {
-              rsvpListHtml += `<li class="small text-muted">• ${rsvp.user_email}</li>`;
-            });
-            rsvpListHtml += '</ul></div>';
-          }
-          
-          contentDiv.innerHTML = `
-            <h4>${data.name}</h4>
-            <hr>
-            <div class="mb-3">
-              <strong>📅 Date & Time:</strong><br>
-              ${formattedDate} at ${formattedTime}
-            </div>
-            <div class="mb-3">
-              <strong>📍 Location:</strong><br>
-              ${data.location}
-            </div>
-            ${data.details ? `<div class="mb-3"><strong>Details:</strong><br>${data.details.replace(/\n/g, '<br>')}</div>` : ''}
-            <div class="mb-3">
-              <strong>Hosted by:</strong> ${data.host_email}
-            </div>
-            ${rsvpListHtml}
-          `;
-          
-          // Build footer with RSVP button
-          let footerHtml = '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>';
-          const isLoggedIn = {{ request.session.sb_user_email|yesno:"true,false" }};
-          if (isLoggedIn) {
-            if (!data.has_rsvpd) {
-              footerHtml += `<button type="button" class="btn btn-primary" id="rsvpBtn" data-event-id="${data.id}">RSVP</button>`;
-            } else {
-              footerHtml += `<button type="button" class="btn btn-success disabled">You're Going!</button>`;
-            }
-          } else {
-            footerHtml += `<a href="{% url 'signin' %}" class="btn btn-primary">Sign in to RSVP</a>`;
-          }
-          
-          footerDiv.innerHTML = footerHtml;
-          
-          // Add RSVP button handler if present
-          const rsvpBtn = document.getElementById('rsvpBtn');
-          if (rsvpBtn) {
-            rsvpBtn.addEventListener('click', async function() {
-              const eventId = this.dataset.eventId;
-              const btn = this;
-              const originalText = btn.textContent;
-              
-              btn.disabled = true;
-              btn.textContent = 'RSVPing...';
-              
-              try {
-                const csrfToken = getCsrfToken();
-                
-                const response = await fetch(`/events/${eventId}/rsvp/`, {
-                  method: 'POST',
-                  headers: {
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                  }
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok && data.success) {
-                  btn.className = 'btn btn-success disabled';
-                  btn.textContent = "You're Going!";
-                  
-                  // Reload page after a short delay to update RSVP count
-                  setTimeout(() => {
-                    window.location.reload();
-                  }, 1000);
-                } else {
-                  alert(data.error || 'Failed to RSVP. Please try again.');
-                  btn.disabled = false;
-                  btn.textContent = originalText;
-                }
-              } catch (error) {
-                alert('An error occurred. Please try again.');
-                btn.disabled = false;
-                btn.textContent = originalText;
-              }
-            });
-          }
-        } catch (error) {
-          contentDiv.innerHTML = '<div class="alert alert-danger">Failed to load event details. Please try again.</div>';
-        }
-      });
-    });
-  </script>
 {% endblock %}
