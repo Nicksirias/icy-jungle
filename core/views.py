@@ -15,8 +15,27 @@ def _sb() -> Client | None:
     return create_client(url, anon_key)
 
 def home(request):
-    # renders event list (ok if you still have the simple version)
-    return render(request, "core/home.html")
+    from .models import Event
+    from django.utils import timezone
+    
+    # Get all upcoming events (or all events if none upcoming)
+    events = Event.objects.filter(time__gte=timezone.now())
+    if not events.exists():
+        # If no upcoming events, show all events
+        events = Event.objects.all()[:20]  # Limit to recent 20
+    
+    # Format events for template (matching the expected structure)
+    events_list = []
+    for e in events:
+        events_list.append({
+            'title': e.name,
+            'location_text': e.location,
+            'datetime': e.time,
+            'description': e.details,
+            'category': None,  # Optional field
+        })
+    
+    return render(request, "core/home.html", {'events': events_list})
 
 @require_http_methods(["GET", "POST"])
 def signin(request):
@@ -73,3 +92,80 @@ def logout(request):
     for k in ["sb_access_token", "sb_refresh_token", "sb_user_id", "sb_user_email"]:
         request.session.pop(k, None)
     return redirect("signin")
+
+@require_http_methods(["GET", "POST"])
+def host_event(request):
+    if not request.session.get("sb_user_email"):
+        return redirect("signin")
+    
+    if request.method == "POST":
+        from .models import Event
+        from django.utils.dateparse import parse_datetime
+        
+        name = request.POST.get("name", "").strip()
+        location = request.POST.get("location", "").strip()
+        time_str = request.POST.get("time", "").strip()
+        details = request.POST.get("details", "").strip()
+        
+        error = None
+        if not name:
+            error = "Event name is required."
+        elif not location:
+            error = "Location is required."
+        elif not time_str:
+            error = "Event time is required."
+        else:
+            # Parse datetime from form input (format: YYYY-MM-DDTHH:MM)
+            try:
+                from django.utils import timezone
+                from datetime import datetime
+                if 'T' in time_str:
+                    event_time = parse_datetime(time_str)
+                    # Make timezone-aware if it's naive
+                    if event_time and not timezone.is_aware(event_time):
+                        event_time = timezone.make_aware(event_time)
+                else:
+                    # Try to parse date-only format
+                    from django.utils.dateparse import parse_date
+                    date_obj = parse_date(time_str)
+                    if date_obj:
+                        event_time = timezone.make_aware(
+                            datetime.combine(date_obj, datetime.min.time())
+                        )
+                    else:
+                        event_time = None
+                
+                if not event_time:
+                    error = "Invalid date/time format."
+                else:
+                    event = Event.objects.create(
+                        name=name,
+                        location=location,
+                        time=event_time,
+                        details=details,
+                        host_email=request.session["sb_user_email"]
+                    )
+                    return redirect("home")
+            except Exception as e:
+                logger.exception("Error creating event: %s", e)
+                error = "Error creating event. Please try again."
+        
+        # Re-fetch events for template when showing error
+        from .models import Event
+        from django.utils import timezone
+        events = Event.objects.filter(time__gte=timezone.now())
+        if not events.exists():
+            events = Event.objects.all()[:20]
+        events_list = []
+        for e in events:
+            events_list.append({
+                'title': e.name,
+                'location_text': e.location,
+                'datetime': e.time,
+                'description': e.details,
+                'category': None,
+            })
+        return render(request, "core/home.html", {'events': events_list, 'error': error})
+    
+    # GET request - redirect to home (form will be in modal)
+    return redirect("home")
