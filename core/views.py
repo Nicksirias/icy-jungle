@@ -276,6 +276,7 @@ def rsvp_toggle(request, event_id):
         return redirect("home")
     
     # Retrieve the authenticated user's JWT Access Token from session
+    # MUST use 'sb_access_token' key (matches signin function storage)
     access_token = request.session.get("sb_access_token")
     
     if not access_token:
