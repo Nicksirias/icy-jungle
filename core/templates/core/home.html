@@ -11,6 +11,21 @@
 
   <h1 class="h4 mb-3">Upcoming Events</h1>
 
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <p class="mb-0 text-muted">
+      {% if request.session.sb_user_email %}
+        Signed in as <strong>{{ request.session.sb_user_email }}</strong>. Ready to inspire the community?
+      {% else %}
+        Sign in to host your own gatherings and see RSVP options soon.
+      {% endif %}
+    </p>
+    {% if request.session.sb_user_email %}
+      <a class="btn btn-primary" href="{% url 'host_event' %}">🎉 Create event</a>
+    {% else %}
+      <a class="btn btn-outline-primary" href="{% url 'signin' %}">Sign in to host</a>
+    {% endif %}
+  </div>
+
   {% if events %}
     <div class="row g-3">
       {% for e in events %}
@@ -38,9 +53,37 @@
                   {{ e.description|truncatechars:120 }}
                 </p>
               {% endif %}
+              
+              {% if e.attendees %}
+                <div class="mt-3 pt-3 border-top">
+                  <h6 class="small fw-semibold text-muted mb-2">Attendees:</h6>
+                  <div class="d-flex flex-wrap gap-1">
+                    {% for attendee in e.attendees %}
+                      <span class="badge bg-light text-dark">{{ attendee }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
             </div>
             <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
-              <a class="btn btn-outline-primary w-100 disabled" role="button" aria-disabled="true">RSVP (soon)</a>
+              {% if request.session.sb_user_email and e.id %}
+                <form method="post" action="{% url 'rsvp_toggle' e.id %}" class="m-0">
+                  {% csrf_token %}
+                  {% if e.has_rsvped %}
+                    <button type="submit" class="btn btn-secondary w-100">
+                      CANCEL RSVP
+                    </button>
+                  {% else %}
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                      RSVP
+                    </button>
+                  {% endif %}
+                </form>
+              {% else %}
+                <a class="btn btn-outline-primary w-100 disabled" role="button" aria-disabled="true">
+                  {% if not request.session.sb_user_email %}Sign in to RSVP{% else %}RSVP (soon){% endif %}
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -48,44 +91,7 @@
     </div>
   {% else %}
     <div class="p-4 bg-white border rounded-3 shadow-sm">
-      <p class="mb-0">No events to show.</p>
+      <p class="mb-0">No events to show. Be the first and <a href="{% url 'host_event' %}">create one</a>!</p>
     </div>
   {% endif %}
-
-  <!-- Host Event Modal -->
-  <div class="modal fade" id="hostEventModal" tabindex="-1" aria-labelledby="hostEventModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="hostEventModalLabel">🎉 Host an Event</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form method="post" action="{% url 'host_event' %}">
-          {% csrf_token %}
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="eventName" class="form-label">Event Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="eventName" name="name" required>
-            </div>
-            <div class="mb-3">
-              <label for="eventLocation" class="form-label">Location <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="eventLocation" name="location" required>
-            </div>
-            <div class="mb-3">
-              <label for="eventTime" class="form-label">Date & Time <span class="text-danger">*</span></label>
-              <input type="datetime-local" class="form-control" id="eventTime" name="time" required>
-            </div>
-            <div class="mb-3">
-              <label for="eventDetails" class="form-label">Details</label>
-              <textarea class="form-control" id="eventDetails" name="details" rows="4" placeholder="Tell us about your event..."></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary">Finish</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 {% endblock %}

@@ -23,9 +23,9 @@
 
       <div class="d-flex align-items-center gap-3">
         {% if request.session.sb_user_email %}
-          <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#hostEventModal">
+          <a class="btn btn-primary btn-sm" href="{% url 'host_event' %}">
             🎉 Host Event
-          </button>
+          </a>
           <span class="text-muted small">Signed in as {{ request.session.sb_user_email }}</span>
           <form method="post" action="{% url 'logout' %}" class="m-0">
             {% csrf_token %}
