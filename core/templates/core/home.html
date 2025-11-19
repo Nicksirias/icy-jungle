@@ -2,7 +2,29 @@
 {% block title %}Home • Social Butterfly{% endblock %}
 
 {% block content %}
+  {% if error %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ error }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endif %}
+
   <h1 class="h4 mb-3">Upcoming Events</h1>
+
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <p class="mb-0 text-muted">
+      {% if request.session.sb_user_email %}
+        Signed in as <strong>{{ request.session.sb_user_email }}</strong>. Ready to inspire the community?
+      {% else %}
+        Sign in to host your own gatherings and see RSVP options soon.
+      {% endif %}
+    </p>
+    {% if request.session.sb_user_email %}
+      <a class="btn btn-primary" href="{% url 'host_event' %}">🎉 Create event</a>
+    {% else %}
+      <a class="btn btn-outline-primary" href="{% url 'signin' %}">Sign in to host</a>
+    {% endif %}
+  </div>
 
   {% if events %}
     <div class="row g-3">
@@ -31,9 +53,37 @@
                   {{ e.description|truncatechars:120 }}
                 </p>
               {% endif %}
+              
+              {% if e.attendees %}
+                <div class="mt-3 pt-3 border-top">
+                  <h6 class="small fw-semibold text-muted mb-2">Attendees:</h6>
+                  <div class="d-flex flex-wrap gap-1">
+                    {% for attendee in e.attendees %}
+                      <span class="badge bg-light text-dark">{{ attendee }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
             </div>
             <div class="card-footer bg-white border-0 pt-0 pb-3 px-3">
-              <a class="btn btn-outline-primary w-100 disabled" role="button" aria-disabled="true">RSVP (soon)</a>
+              {% if request.session.sb_user_email and e.id %}
+                <form method="post" action="{% url 'rsvp_toggle' e.id %}" class="m-0">
+                  {% csrf_token %}
+                  {% if e.has_rsvped %}
+                    <button type="submit" class="btn btn-secondary w-100">
+                      CANCEL RSVP
+                    </button>
+                  {% else %}
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                      RSVP
+                    </button>
+                  {% endif %}
+                </form>
+              {% else %}
+                <a class="btn btn-outline-primary w-100 disabled" role="button" aria-disabled="true">
+                  {% if not request.session.sb_user_email %}Sign in to RSVP{% else %}RSVP (soon){% endif %}
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -41,7 +91,7 @@
     </div>
   {% else %}
     <div class="p-4 bg-white border rounded-3 shadow-sm">
-      <p class="mb-0">No events to show.</p>
+      <p class="mb-0">No events to show. Be the first and <a href="{% url 'host_event' %}">create one</a>!</p>
     </div>
   {% endif %}
 {% endblock %}

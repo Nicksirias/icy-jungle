@@ -1,16 +1,26 @@
 from pathlib import Path
 import os
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv  # ✅ add this
 
 # Load environment variables from .env (must come before using them)
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")  # ✅ add this
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-change-me")  # ✅ change this line
-DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"  # ✅ change this line
+
+def get_env(name: str, default: str | None = None, *, required: bool = False) -> str | None:
+    """Read environment variables and error when required ones are missing."""
+    value = os.environ.get(name, default)
+    if required and value in (None, ""):
+        raise ImproperlyConfigured(f"Missing required environment variable: {name}")
+    return value
+
+
+SECRET_KEY = get_env("DJANGO_SECRET_KEY", "dev-secret-change-me")  # ✅ change this line
+DEBUG = get_env("DJANGO_DEBUG", "True") == "True"  # ✅ change this line
 
 # Allowed hosts & CSRF (Render uses onrender.com)
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = get_env("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 CSRF_TRUSTED_ORIGINS = os.getenv(
     "CSRF_TRUSTED_ORIGINS",
     "http://localhost,http://127.0.0.1,https://*.onrender.com"
@@ -82,4 +92,20 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'  # ✅ add for deployment later
 
 # Store sessions in signed cookies (no database table needed)
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-SESSION_COOKIE_SECURE = True  # Render is HTTPS; okay for local too
+SESSION_COOKIE_SECURE = get_env("DJANGO_DEBUG", "True") != "True"  # Only secure in production
+
+# Supabase configuration
+SUPABASE_URL = get_env("SUPABASE_URL", required=True)
+SUPABASE_ANON_KEY = get_env("SUPABASE_ANON_KEY", required=True)
+SUPABASE_SERVICE_ROLE_KEY = get_env("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_CLIENT = None
+
+if SUPABASE_URL and SUPABASE_ANON_KEY:
+    try:
+        from supabase import create_client, Client
+
+        SUPABASE_CLIENT = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+    except Exception as exc:  # pragma: no cover - import/setup guard
+        import logging
+
+        logging.getLogger(__name__).warning("Supabase client failed to initialize: %s", exc)
