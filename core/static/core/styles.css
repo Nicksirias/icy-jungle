@@ -1,0 +1,149 @@
+:root{
+  /* Color palette */
+  --white: #f1fafc; /* subtle white */
+  --blue-green: #3db5c4; /* primary accent */
+  --baby-blue: #c9e4eb; /* soft accent / backgrounds */
+  --navy: #004a94; /* deep text / emphasis */
+
+  /* Typography: headings use Dancing Script, body uses Delius */
+  --heading-font: "Dancing Script", "Lucida Bright", "Georgia", serif;
+  --body-font: "Delius", "Georgia", serif;
+  /* Layout */
+  --content-width: 1100px;
+}
+
+/* Base */
+html,body{
+  height:100%;
+}
+body{
+  background-color: var(--white);
+  color: var(--navy);
+  font-family: var(--body-font);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height: 1.6;
+}
+
+/* Navbar */
+.navbar{
+  background-color: transparent;
+}
+.navbar .navbar-brand{
+  color: var(--navy) !important;
+  font-weight: 600;
+  font-family: var(--heading-font);
+}
+.navbar .nav-link{
+  color: rgba(0,74,148,0.9) !important;
+}
+.navbar .btn-primary{
+  background-color: var(--blue-green);
+  border-color: var(--blue-green);
+  color: #fff;
+}
+.navbar .btn-primary:hover,
+.navbar .btn-primary:focus{
+  background-color: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+/* Primary buttons site-wide */
+.btn-primary{
+  background-color: var(--blue-green);
+  border-color: var(--blue-green);
+}
+.btn-primary:hover,
+.btn-primary:focus{
+  background-color: var(--navy);
+  border-color: var(--navy);
+}
+
+/* Outline secondary buttons to match palette */
+.btn-outline-secondary{
+  color: var(--navy);
+  border-color: rgba(0,74,148,0.15);
+}
+.btn-outline-secondary:hover{
+  background-color: var(--baby-blue);
+  border-color: var(--navy);
+}
+
+/* Cards and panels */
+.card{
+  border: 1px solid rgba(3,59,78,0.06);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(3,59,78,0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card-header{
+  background: linear-gradient(90deg, rgba(201,228,235,0.6), rgba(61,181,196,0.08));
+  color: var(--navy);
+  font-weight:600;
+  padding: 0.9rem 1rem;
+}
+
+/* Links and headings */
+a{
+  color: var(--navy);
+  text-decoration: none;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+a:hover{
+  color: var(--blue-green);
+  text-decoration: underline;
+  text-decoration-color: var(--blue-green);
+}
+
+h1,h2,h3,h4,h5{
+  color: var(--navy);
+  font-family: var(--heading-font);
+  letter-spacing: 0.6px;
+  margin-top: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+h1{ font-size: 2.4rem; }
+h2{ font-size: 1.9rem; }
+h3{ font-size: 1.4rem; }
+
+/* Forms */
+.form-control:focus{
+  border-color: var(--blue-green);
+  box-shadow: 0 0 0 0.15rem rgba(61,181,196,0.15);
+}
+
+/* Utility */
+.container{
+  max-width: var(--content-width);
+}
+.py-4{
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+/* Small tweaks for contrast */
+.text-muted{
+  color: rgba(0,74,148,0.6) !important;
+}
+
+/* Footer hint */
+.footer{
+  padding: 2rem 0;
+  color: rgba(0,74,148,0.65);
+}
+
+/* Buttons refinement */
+.btn-primary{
+  padding: 0.55rem 1.05rem;
+  border-radius: 8px;
+  transition: background-color 0.15s ease, transform 0.12s ease;
+}
+.btn-primary:active{ transform: translateY(1px); }
+
+/* Card hover lift */
+.card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(3,59,78,0.07);
+}
