@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,6 +90,14 @@ LOGGING = {
 
 STATIC_URL = 'static/'  # ✅ keep or add this
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # ✅ add for deployment later
+STATICFILES_DIRS = [
+    BASE_DIR / 'core' / 'static',
+]
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Store sessions in signed cookies (no database table needed)
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
