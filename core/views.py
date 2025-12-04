@@ -242,6 +242,7 @@ def host_event(request):
                         "description": form.cleaned_data["description"],
                         "datetime": event_date.isoformat(),
                         "location_text": form.cleaned_data["location"],
+                        "category": form.cleaned_data["category"],
                         "creator_id": sb_user_id,
                     }
 
