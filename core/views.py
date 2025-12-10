@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import os
+import random
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods, require_POST
@@ -323,3 +324,36 @@ def rsvp_toggle(request, event_id):
         from django.contrib import messages
         messages.error(request, "We could not update your RSVP. Please try again.")
         return redirect("home")
+
+
+def abtest(request):
+    """
+    Public page for A/B test.
+    - Variant assigned 50/50 on first visit and stored in session (sticky).
+    - We log the variant + session key for simple tracking.
+    - Team member nicknames read from env TEAM_MEMBERS_CSV (comma-separated).
+    """
+    variant = request.session.get("ab_variant")
+    assigned_now = False
+    if variant not in ("kudos", "thanks"):
+        variant = random.choice(["kudos", "thanks"])
+        request.session["ab_variant"] = variant
+        assigned_now = True
+
+    # Ensure session key exists (so our logs can correlate)
+    if not request.session.session_key:
+        request.session.save()
+
+    members_csv = os.getenv("TEAM_MEMBERS_CSV", "Itay,Bar")
+    members = [m.strip() for m in members_csv.split(",") if m.strip()]
+
+    # lightweight tracking to logs
+    logger.info(
+        "ABTEST hit: variant=%s assigned_now=%s session=%s ip=%s",
+        variant,
+        assigned_now,
+        request.session.session_key,
+        request.META.get("REMOTE_ADDR"),
+    )
+
+    return render(request, "core/abtest.html", {"variant": variant, "members": members})
