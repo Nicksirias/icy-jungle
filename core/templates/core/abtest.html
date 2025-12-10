@@ -1,0 +1,23 @@
+{% extends "core/base.html" %}
+{% block title %}A/B Test • Social Butterfly{% endblock %}
+
+{% block content %}
+  <div class="p-4 bg-white border rounded-3 shadow-sm">
+    <h1 class="h4 mb-3">Team Members</h1>
+    <ul class="mb-4">
+      {% for m in members %}
+        <li>{{ m }}</li>
+      {% empty %}
+        <li>(no members configured)</li>
+      {% endfor %}
+    </ul>
+
+    <button id="abtest" class="btn btn-primary">
+      {{ variant }}
+    </button>
+
+    <p class="text-muted mt-3 mb-0 small">
+      Variant is assigned per visitor and kept in your session.
+    </p>
+  </div>
+{% endblock %}
