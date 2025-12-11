@@ -344,7 +344,7 @@ def abtest(request):
     if not request.session.session_key:
         request.session.save()
 
-    members_csv = os.getenv("TEAM_MEMBERS_CSV", "Itay,Bar")
+    members_csv = os.getenv("TEAM_MEMBERS_CSV", "fair-hare,crowded-cat,adventurous-goldfish,crowded-crow,kind-bee")
     members = [m.strip() for m in members_csv.split(",") if m.strip()]
 
     # lightweight tracking to logs
