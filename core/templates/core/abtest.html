@@ -20,8 +20,23 @@
       Variant is assigned per visitor and kept in your session.
     </p>
     <script>
-      const abTestButton = document.getElementById('abtest');
-        // ... rest of the script ...
-    </script>
+  // 1. Get the button element
+  const abTestButton = document.getElementById('abtest');
+
+  if (abTestButton) {
+    // 2. Attach a click listener
+    abTestButton.addEventListener('click', function() {
+      // 3. Determine the variant from the button's text
+      const variant = this.textContent.toLowerCase().trim(); 
+
+      // 4. Send a custom event to GA4
+      gtag('event', 'abtest_click', {
+        'event_category': 'ab_testing',
+        'event_label': 'button_engagement',
+        'ab_variant': variant // This is the crucial part for your A/B test
+      });
+    });
+  }
+</script>
   </div>
 {% endblock %}
