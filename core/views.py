@@ -328,11 +328,24 @@ def rsvp_toggle(request, event_id):
 
 def abtest(request):
     """
-    Public page for A/B test.
-    - Variant assigned 50/50 on first visit and stored in session (sticky).
-    - We log the variant + session key for simple tracking.
-    - Team member nicknames read from env TEAM_MEMBERS_CSV (comma-separated).
+    Public page for A/B test with server-side logging for both page load and click.
     """
+    
+    # --- 1. HANDLE CLICK (POST REQUEST) ---
+    if request.method == "POST":
+        clicked_variant = request.POST.get("variant")
+        
+        # Log the button click directly to the server logs
+        logger.info(
+            "ABTEST_CLICK: variant=%s session=%s ip=%s",
+            clicked_variant,
+            request.session.session_key,
+            request.META.get("REMOTE_ADDR"),
+        )
+        # Redirect back to the same page to prevent double submission
+        return redirect(request.path) 
+    
+    # --- 2. HANDLE PAGE LOAD (GET REQUEST) ---
     variant = request.session.get("ab_variant")
     assigned_now = False
     if variant not in ("kudos", "thanks"):
@@ -340,16 +353,16 @@ def abtest(request):
         request.session["ab_variant"] = variant
         assigned_now = True
 
-    # Ensure session key exists (so our logs can correlate)
+    # Ensure session key exists
     if not request.session.session_key:
         request.session.save()
 
     members_csv = os.getenv("TEAM_MEMBERS_CSV", "fair-hare,crowded-cat,adventurous-goldfish,crowded-crow,kind-bee")
     members = [m.strip() for m in members_csv.split(",") if m.strip()]
 
-    # lightweight tracking to logs
+    # Log the page view
     logger.info(
-        "ABTEST hit: variant=%s assigned_now=%s session=%s ip=%s",
+        "ABTEST_PAGE_VIEW: variant=%s assigned_now=%s session=%s ip=%s",
         variant,
         assigned_now,
         request.session.session_key,
