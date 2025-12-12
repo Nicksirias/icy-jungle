@@ -2,41 +2,26 @@
 {% block title %}A/B Test • Social Butterfly{% endblock %}
 
 {% block content %}
-  <div class="p-4 bg-white border rounded-3 shadow-sm">
-    <h1 class="h4 mb-3">Team Members</h1>
-    <ul class="mb-4">
-      {% for m in members %}
-        <li>{{ m }}</li>
-      {% empty %}
-        <li>(no members configured)</li>
-      {% endfor %}
-    </ul>
+  <div class="p-4 bg-white border rounded-3 shadow-sm">
+    <h1 class="h4 mb-3">Team Members</h1>
+    <ul class="mb-4">
+      {% for m in members %}
+        <li>{{ m }}</li>
+      {% empty %}
+        <li>(no members configured)</li>
+      {% endfor %}
+    </ul>
 
-    <button id="abtest" class="btn btn-primary">
-      {{ variant }}
-    </button>
-
-    <p class="text-muted mt-3 mb-0 small">
-      Variant is assigned per visitor and kept in your session.
-    </p>
-    <script>
-  // 1. Get the button element
-  const abTestButton = document.getElementById('abtest');
-
-  if (abTestButton) {
-    // 2. Attach a click listener
-    abTestButton.addEventListener('click', function() {
-      // 3. Determine the variant from the button's text
-      const variant = this.textContent.toLowerCase().trim(); 
-
-      // 4. Send a custom event to GA4
-      gtag('event', 'abtest_click', {
-        'event_category': 'ab_testing',
-        'event_label': 'button_engagement',
-        'ab_variant': variant // This is the crucial part for your A/B test
-      });
-    });
-  }
-</script>
-  </div>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <input type="hidden" name="variant" value="{{ variant }}">
+        
+        <button id="abtest" type="submit" class="btn btn-primary">
+          {{ variant }}
+        </button>
+    </form>
+        <p class="text-muted mt-3 mb-0 small">
+      Variant is assigned per visitor and kept in your session.
+    </p>
+  </div>
 {% endblock %}
