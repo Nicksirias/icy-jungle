@@ -1,97 +1,168 @@
-# icy-jungle
-MGT 656 Fall 2026 Group Project
+# Social Butterfly
 
-**Idea 1 (Top Choice)**
+## Project Overview
 
-**Tagline:** It’s like Tinder for friend groups
-	
-**Major User Journeys:**
+Social Butterfly is a full-stack web application designed to help users create, discover, and attend local social events without relying on closed social networks or private invitation systems. The application targets students and young professionals who are new to an area and want to find open, community-driven events.
 
-	As a User: 
-		-	I can create a user profile with my name, interests, & location and the app will suggest communities that match my hobbies 
-		-	I can join existing groups, browse upcoming events, or message within my communities (location or activity based; “Anyone up for board game night this Friday?” 
-		-	I can rate locations and mark locations, people, and groups as potentially safe or dangerous for review by staff 
-	As a Group Lead: 
-		-	I can enter details about the group (name, description, date/time, location, capacity, expected costs, tags: casual/beginner friendly/BYOT (bring your own tools)/free) 
-		-	I can choose a group’s visibility or an event’s visibility (public/private, by location, by safety, by invite only, by number of events attended) 
-		-	I can manage RSVPs, chat with group members, post updates to events, and block certain people 
-	As a Venue: 
-		-	I can register as a potential venue for types of events with deals for groups that book through the app (extra hour free, first drink free, 50% off Tuesdays) 
-		-	I can post upcoming or recurring events to attract local groups (Open Mic Tuesdays, Magic the Gathering Mondays, Bouldering Thursdays, Book Club Saturdays) 
-	
-**Core Features:**
+Users can sign up, browse upcoming events, filter by category, RSVP to events, and manage their attendance. Event hosts can create and manage events while viewing attendee lists. The application emphasizes simplicity, accessibility, and community engagement.
 
-	Event/Group Inventory
-		-	Users can browse or search for nearby events or groups filtered by interest tags (if the front can be built out to show recommendations based around location and interest preferences, even better) 
-	Group Creation and Management
-		-	Hosts can create groups that have specific identifiers (name, location, cost, and various other tags) that can be marked as public or private for management 
-	Event Creation and Management
-		-	Groups can have events attached to them with specific inputs (name, description, time, location, image, cost) and marked as public or private 
-	Profile Creation 
-		-	Users can create a profile with name, location, photos/videos, shared interests, social media links, and groups from which they can join groups 
-	Post MVP 
-		-	Venue/Partnership dashboards 
-		-	Safety tracking and community notes
-		-	Gamification of user engagement 
-		-	Internal payment platform for events and tickets
-		-	Enhanced recommendations    
+The project was developed using Agile/Scrum practices across four sprints and deployed to both staging and production environments.
 
-**Idea 2**
+---
 
-**Tagline:** The social radar for your city — discover and join real-world events around you.
- 
-**Major User Journeys** 
+## Technology Stack
 
-	As a host:
-		-	I open the app, tap “Create Event,” and add details (name, description, time, location, image). 
-		-	I choose whether it’s private (invite-only) or public (visible to everyone nearby). 
-		-	I share a link or QR code with friends or let it appear in the local event feed. 
-		-	I can manage RSVPs, edit details, and see who’s interested or attending. 
-	As a guest: 
-		-	I log in and see a map or feed of nearby public events — bar trivia nights, outdoor workouts, block parties, etc. 
-		-	I can filter by type (social, fitness, nightlife, community) or proximity. 
-		-	I tap on an event to see who’s going, message the host, or RSVP. 
-		-	I can also create my own small gathering and make it discoverable to people nearby. 
-	As a venue (e.g., bar, café, gym): 
-		-	I post upcoming events or promotions (e.g., “Live music tonight” or “Trivia Wednesday”) visible to people in the area. 
-		-	I can mark events as recurring and track attendance over time
+- **Backend:** Django (Python)
+- **Database:** PostgreSQL
+- **Frontend:** HTML, CSS, Django Templates
+- **Authentication:** Django built-in authentication system
+- **Hosting:** Render
+- **Version Control:** Git & GitHub
 
-**Core Features - MVP**
+---
 
-	Event creation and discovery: 
-		-	Users and venues can create events and choose visibility (public/private). 
-		-	A map and feed show what’s happening nearby. 
+## Local Development Setup
 
-	Smart local feed: 
-		-	Personalized suggestions based on location, interests, and mutual friends. 
-		-	Simple filters (today/this weekend, free events, by category). 
-  
-	RSVP and social layer: 
-		-	See attendees (friends or public users). 
-		-	Message hosts or comment on event threads. 
-  
-	User profiles and trust:
-		-	Lightweight verification (photo, linked socials). 
-		-	Option to mark events “friends only” or “open to new people.” 	
-  
-	Basic analytics for hosts/venues (optional for MVP+1):  
-		-	Simple stats like number of views, RSVPs, and check-ins to gauge engagement. 
+### Prerequisites
+- Python 3.10+
+- PostgreSQL (optional for local use; SQLite can be used for development)
+- Git
 
-**Idea 3**
+### Setup Instructions
 
-**Tagline:** Web app for sketching on a blank globe 
-	
-**Majors User Journeys:** 
+```bash
+# Clone the repository
+git clone https://github.com/Nicksirias/icy-jungle.git
+cd icy-jungle
 
-	-	“As a user, I can draw on a blank sphere and make an imaginary planet.” 
-	-	“As a user, I can save my globe and open it up at a later date.” 
-	-	“As a user, I can select simple art tools (like old school Microsoft Paint) to sketch on the sphere.” 
-	
-**Core Features:**  
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # macOS/Linux
+venv\Scripts\activate     # Windows
 
-	-	A rotatable blank sphere with controls similar to Google Earth that you can “lock” in order to draw shorelines, mountain ranges, rivers, political borders. You unlock the globe to reposition it. 
-	-	The ability to save your work and reopen it at a later date.  
-	-	A dropdown menu of various layers (the equator, lat/long lines, tectonic plate boundaries) you can toggle for visibility.  
-	-	An ability to randomly generate tectonic plates (which you can toggle on or off).  
-	Features to skip:  
-	-	Complex artistic tools  
+# Install dependencies
+pip install -r requirements.txt
+
+# Run database migrations
+python manage.py migrate
+
+# Start the development server
+python manage.py runserver
+
+---
+This application will be available at:
+http://127.0.0.1:8000/
+
+---
+Deployment
+Environments
+
+Staging: Used during development and QA
+
+Production: Final submission environment
+
+Production URL
+https://icy-jungle.onrender.com
+
+Deployment Process
+
+Development occurs on feature branches
+
+Changes are merged via Pull Requests
+
+Merging into main triggers automatic deployment on Render
+
+All configuration and secrets are managed via environment variables
+
+Core Features (MVP)
+
+User registration and login
+
+Event creation and management (create, edit, delete)
+
+Event browsing and category filtering
+
+RSVP system with attendee tracking
+
+User dashboard for managing RSVPs
+
+Responsive and clean UI
+
+A/B Test Endpoint (Required)
+Team Nickname
+icy-jungle
+
+How the Endpoint Is Computed
+
+The A/B test endpoint is computed as the first 7 characters of the SHA-1 hash of the team nickname:
+echo -n "icy-jungle" | shasum | cut -c1-7
+
+A/B Test Endpoint URL
+https://icy-jungle.onrender.com/da1801a/
+
+Endpoint Behavior
+
+Publicly accessible (no login required)
+
+Displays all team member nicknames
+
+Includes a button with id="abtest"
+
+Button text alternates between:
+
+Variant A: "kudos"
+
+Variant B: "thanks"
+
+Variant is randomly assigned and persisted per visitor session
+
+Server-side analytics track page views and button clicks
+
+Team Members
+
+fair-hare
+crowded-cat
+adventurous-goldfish
+crowded-crow
+kind-bee
+
+## Agile Development Summary
+
+The project was developed using Scrum across four sprints:
+
+Sprint 1: Design Sprint (user research, planning, wireframes)
+
+Sprint 2: Infrastructure & initial deployment
+
+Sprint 3: Core user journey implementation
+
+Sprint 4: MVP polish, UI refinement, and A/B testing
+
+All sprint documentation (planning, review, retrospective) is included in:
+/docs/sprints/
+
+Testing & Code Quality
+
+Automated unit and integration tests for critical user flows
+
+Database migrations tracked in version control
+
+Django-appropriate linting applied
+
+No secrets committed to the repository
+
+Clear separation of concerns following MVC principles
+
+Repository Links
+
+GitHub Repository: https://github.com/Nicksirias/icy-jungle
+
+Production App: https://icy-jungle.onrender.com
+
+A/B Test Endpoint: https://icy-jungle.onrender.com/da1801a/
+
+Sprint Documentation: /docs/sprints/
+
+License
+
+This project was developed for academic purposes as part of a course assignment.
